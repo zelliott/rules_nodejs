@@ -99,9 +99,6 @@ function deleteDirectory(p) {
 function symlink(target, p) {
     return __awaiter(this, void 0, void 0, function* () {
         log_verbose(`symlink( ${p} -> ${target} )`);
-        if (!(yield exists(target))) {
-            return false;
-        }
         try {
             yield fs.promises.symlink(target, p, 'junction');
             return true;
@@ -455,7 +452,7 @@ function main(args, runfiles) {
                 yield mkdirp(path.dirname(m.name));
                 if (m.link) {
                     const [root, modulePath] = m.link;
-                    let target = '<package linking failed>';
+                    let target;
                     switch (root) {
                         case 'execroot':
                             if (isExecroot) {
@@ -488,16 +485,18 @@ function main(args, runfiles) {
                                 }
                             }
                             catch (_a) {
-                                target = '<runfiles resolution failed>';
+                                target = undefined;
                             }
                             break;
                     }
-                    const stats = yield gracefulLstat(m.name);
-                    if (stats !== null && (yield isLeftoverDirectoryFromLinker(stats, m.name))) {
-                        yield createSymlinkAndPreserveContents(stats, m.name, target);
-                    }
-                    else {
-                        yield symlink(target, m.name);
+                    if (target) {
+                        const stats = yield gracefulLstat(m.name);
+                        if (stats !== null && (yield isLeftoverDirectoryFromLinker(stats, m.name))) {
+                            yield createSymlinkAndPreserveContents(stats, m.name, target);
+                        }
+                        else {
+                            yield symlink(target, m.name);
+                        }
                     }
                 }
                 if (m.children) {
