@@ -277,6 +277,7 @@ def _validate_options_impl(ctx):
         allow_js = ctx.attr.allow_js,
         declaration = ctx.attr.declaration,
         declaration_map = ctx.attr.declaration_map,
+        has_local_deps = ctx.attr.has_local_deps,
         preserve_jsx = ctx.attr.preserve_jsx,
         composite = ctx.attr.composite,
         emit_declaration_only = ctx.attr.emit_declaration_only,
@@ -295,6 +296,9 @@ def _validate_options_impl(ctx):
         outputs = [marker],
         arguments = [arguments],
         executable = "validator",
+        env = {
+            "BINDIR": ctx.var["BINDIR"],
+        },
     )
     return [
         _ValidOptionsInfo(marker = marker),
@@ -309,6 +313,7 @@ validate_options = rule(
         "declaration_map": attr.bool(),
         "emit_declaration_only": attr.bool(),
         "extends": attr.label(allow_files = [".json"]),
+        "has_deps": attr.bool(doc = "Whether any of the deps are in the local workspace (not starting with '@')"),
         "incremental": attr.bool(),
         "preserve_jsx": attr.bool(),
         "resolve_json_module": attr.bool(),
@@ -698,6 +703,7 @@ def ts_project_macro(
                 allow_js = allow_js,
                 tsconfig = tsconfig,
                 extends = extends,
+                has_local_deps = len([d for d in deps if not d.startswith("@")]) > 0,
             )
             extra_deps.append("_validate_%s_options" % name)
 
