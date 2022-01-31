@@ -36,6 +36,6 @@
         "karma-sourcemap-loader": ">=0.3.0"
     },
     "scripts": {
-      "postinstall": "node npm_version_check.js"
+        "postinstall": "node npm_version_check.js"
     }
 }

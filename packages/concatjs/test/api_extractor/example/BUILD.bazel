@@ -1,0 +1,23 @@
+load("//packages/concatjs:index.bzl", "ts_library")
+load("//packages/concatjs/test/api_extractor/impl:impl.bzl", "api_extractor")
+
+# This rule takes as input a ts_library target with a single entry point (e.g. a single srcs file)
+# and outputs an API doc model to dist/bin/packages/concatjs/test/api_extractor/example.api.json.
+api_extractor(
+    name = "api",
+    out = "example.api.json",
+    lib = ":example",
+)
+
+ts_library(
+    name = "example",
+    srcs = ["index.ts"],
+    deps = [
+      ':some_dependency',
+    ],
+)
+
+ts_library(
+    name = "some_dependency",
+    srcs = ["some_dependency.ts"],
+)

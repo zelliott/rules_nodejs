@@ -1,0 +1,25 @@
+load("//packages/concatjs:index.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+ts_library(
+    name = "lib",
+    srcs = [
+        "index.ts",
+    ],
+    deps = [
+        "@npm//@microsoft/api-extractor",
+        "@npm//@types/node",
+    ],
+)
+
+nodejs_binary(
+    name = "api_extractor",
+    data = [
+        ":lib",
+        "@npm//@microsoft/api-extractor",
+    ],
+    entry_point = ":index.ts",
+    templated_args = ["--bazel_patch_module_resolver"],
+)
