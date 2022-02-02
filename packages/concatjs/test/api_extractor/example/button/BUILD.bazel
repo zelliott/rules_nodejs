@@ -1,0 +1,35 @@
+load("//packages/concatjs:index.bzl", "ts_library")
+load("//packages/concatjs/test/api_extractor/impl:impl.bzl", "api_extractor")
+
+package(default_visibility = ["//visibility:public"])
+
+api_extractor(
+    name = "button_api",
+    out = "button.api.json",
+    libs = [
+        ":button",
+        ":button_internal",
+        ":button_events",
+    ],
+    entry_point = ":button",
+)
+
+ts_library(
+    name = "button",
+    srcs = ["index.ts"],
+    deps = [":button_internal"],
+)
+
+ts_library(
+    name = "button_internal",
+    srcs = [
+        "button.ts",
+        "button_base.ts",
+    ],
+    deps = [":button_events"],
+)
+
+ts_library(
+    name = "button_events",
+    srcs = ["button_events.ts"],
+)

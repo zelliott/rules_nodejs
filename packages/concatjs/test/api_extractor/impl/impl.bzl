@@ -6,10 +6,10 @@ _AE_BIN = "//packages/concatjs/test/api_extractor/impl:api_extractor"
 
 def _api_extractor_impl(ctx):
     # Main entry point d.ts file (e.g. index.d.ts).
-    entry_point = ctx.files.lib[0]
+    entry_point = ctx.files.entry_point[0]
 
     # Entire transitive closure of d.ts files needed by AE.
-    transitive_declarations = ctx.attr.lib[DeclarationInfo].transitive_declarations.to_list()
+    transitive_declarations = ctx.attr.entry_point[DeclarationInfo].transitive_declarations.to_list()
 
     # Run AE with the specified inputs/outputs/args and output the doc model.
     bin_inputs = transitive_declarations
@@ -36,7 +36,11 @@ api_extractor = rule(
         "out": attr.output(
             mandatory = True,
         ),
-        "lib": attr.label(
+        "libs": attr.label_list(
+            allow_files = False,
+            mandatory = True,
+        ),
+        "entry_point": attr.label(
             allow_files = False,
             mandatory = True,
             providers = [DeclarationInfo],

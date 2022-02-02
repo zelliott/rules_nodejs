@@ -1,0 +1,26 @@
+load("//packages/concatjs:index.bzl", "ts_library")
+load("//packages/concatjs/test/api_extractor/impl:impl.bzl", "api_extractor")
+
+package(default_visibility = ["//visibility:public"])
+
+api_extractor(
+    name = "dialog_api",
+    out = "dialog.api.json",
+    libs = [
+      ":dialog",
+      ":dialog_internal",
+      ],
+    entry_point = ":dialog",
+)
+
+ts_library(
+    name = "dialog",
+    srcs = ["index.ts"],
+    deps = [":dialog_internal"],
+)
+
+ts_library(
+    name = "dialog_internal",
+    srcs = ["dialog.ts"],
+    deps = ["//packages/concatjs/test/api_extractor/example/button"],
+)
