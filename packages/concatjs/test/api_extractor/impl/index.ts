@@ -1,18 +1,23 @@
 /// <reference types="node"/>
 /// <reference lib="es2017"/>
 
-import {Extractor, ExtractorConfig, IConfigFile, IExtractorConfigPrepareOptions, IExtractorInvokeOptions} from '@microsoft/api-extractor';
-import * as path from 'path';
 import * as fs from 'fs';
+import * as path from 'path';
 
-const [entryPoint, docModelOut] = process.argv.slice(2);
+import {
+    Extractor, ExtractorConfig, IConfigFile, IExtractorConfigPrepareOptions, IExtractorInvokeOptions
+} from '@microsoft/api-extractor';
+
+const [entryPoint, tsconfig, moduleName, docModelOut] = process.argv.slice(2);
 
 const pkgJson = path.resolve(path.dirname(entryPoint), 'package.json');
-fs.writeFileSync(pkgJson, JSON.stringify({
-  'name': 'GENERATED-BY-BAZEL',
-  'version': '0.0.0',
-  'description': 'This is a dummy package.json as API Extractor always requires one.',
-}));
+fs.writeFileSync(
+  pkgJson,
+  JSON.stringify({
+    name: moduleName,
+    version: '0.0.0',
+  })
+);
 
 const extractorOptions: IExtractorInvokeOptions = {
   localBuild: true,
@@ -22,14 +27,7 @@ const extractorOptions: IExtractorInvokeOptions = {
 
 const configObject: IConfigFile = {
   compiler: {
-    overrideTsconfig: {
-      "compilerOptions": {
-        "lib": ["es2017", "dom"],
-        "strict": true,
-        "baseUrl": ".",
-        "target": "es2015",
-      },
-    },
+    tsconfigFilePath: path.resolve(tsconfig),
   },
   projectFolder: path.resolve(path.dirname(entryPoint)),
   mainEntryPointFilePath: path.resolve(entryPoint),
@@ -46,7 +44,7 @@ const configObject: IConfigFile = {
   },
   tsdocMetadata: {
     enabled: false,
-  }
+  },
 };
 const options: IExtractorConfigPrepareOptions = {
   configObject,
@@ -56,5 +54,5 @@ const options: IExtractorConfigPrepareOptions = {
 };
 const extractorConfig = ExtractorConfig.prepare(options);
 
-const {succeeded} = Extractor.invoke(extractorConfig, extractorOptions);
+const { succeeded } = Extractor.invoke(extractorConfig, extractorOptions);
 process.exitCode = succeeded ? 0 : 1;
